@@ -1,0 +1,42 @@
+<?php
+$sql = "SELECT Customer.Customer_Fname, Customer.Customer_Lname
+FROM Customer
+INNER JOIN Customer_Account ON Customer.Customer_ID = Customer_Account.Customer_ID
+INNER JOIN Account ON Customer_Account.Account_ID = Account.Account_ID
+WHERE Account.Account_Balance > (SELECT AVG(Account_Balance) FROM Account)";
+
+require_once "conn.php"; 
+
+// Create connection
+$conn = mysqli_connect($servername, $username, $password, $dbname);
+
+$result = mysqli_query($conn, $sql);
+if (mysqli_num_rows($result) > 0) {
+  echo "<table border = '1'>\n";
+  // output data of each row
+  // this creates an array of column names so that they can be displayed above the result rows. 
+  $col_names = [];
+  while ($field_info = $result->fetch_field()) {
+    $col_names[] = $field_info->name;
+  }
+  echo "<tr>\n";
+  $num_fields = mysqli_num_fields($result);
+  for ($i = 0; $i < $num_fields; $i++) {
+    echo "<th>" . $col_names[$i] . "</th>\n";
+  }
+  echo "</tr>\n";
+    while($row = mysqli_fetch_row($result)) {
+      echo "<tr>\n";
+      $cols = mysqli_num_fields($result); 
+      for ($i = 0; $i < $cols; $i++) {
+        echo "<td>" . $row[$i] . "</td>\n";
+      }
+      echo "</tr>\n";
+  }
+  echo "</table>\n";
+} else {
+  echo "0 results";
+}
+mysqli_free_result($result);
+
+?>
